@@ -1,11 +1,8 @@
-/*
- ▖▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▚
- ▞ ofxAVSpeechSynthesizer.h                                 ▚
- ▞──────────────────────┐  project : ofxAVSpeechSynthesizer ▚
- ▞ github.com/azuremous └─────────────────────────────────▶ ▚
- ▞ Created by Jung un Kim a.k.a azuremous on 3/12/15.       ▚
- ▞▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▘
- ----------------------------------------------------------*/
+/*-----------------------------------------------------------/
+ ofxAVSpeechSynthesizer.h
+ github.com/azuremous
+ Created by Jung un Kim a.k.a azuremous on 3/12/15.
+/----------------------------------------------------------*/
 
 #pragma once
 
@@ -15,11 +12,17 @@
 @interface speechSynthesizerDelegate : UIViewController<AVSpeechSynthesizerDelegate>
 {
     AVSpeechSynthesizer* speechSynthesizer;
+    NSArray * voice;
+    
 }
+
+@property(readonly)bool isPlaying;
+
 - (id)init;
-- (void)play:(NSString*)text setRate:(float)rate setPitch:(float)pitch;
+- (void)play:(NSString*)text setRate:(float)rate setPitch:(float)pitch setVoice:(NSString*)voiceID;
 - (void)pause;
 - (void)stop;
+- (bool)getIsPlaying;
 
 @end
 
@@ -29,7 +32,8 @@ private:
 
 public:
     ofxAVSpeechSynthesizer();
-    void play(wstring text, float rate = 0.1, float pitch = 1.0);
+    void play(wstring text, float rate = 0.1, float pitch = 1.0, int num = 0);
     void pause();
     void stop();
+    bool getIsPlaying();
 };

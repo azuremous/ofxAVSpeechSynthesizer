@@ -1,19 +1,18 @@
-/*
- ▖▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▘▚
- ▞ ofxAVSpeechSynthesizer.mm                                ▚
- ▞──────────────────────┐  project : ofxAVSpeechSynthesizer ▚
- ▞ github.com/azuremous └─────────────────────────────────▶ ▚
- ▞ Created by Jung un Kim a.k.a azuremous on 3/12/15.       ▚
- ▞▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▖▘
- ----------------------------------------------------------*/
+/*-----------------------------------------------------------/
+ ofxAVSpeechSynthesizer.mm
+ github.com/azuremous
+ Created by Jung un Kim a.k.a azuremous on 3/12/15.
+ /----------------------------------------------------------*/
 
 #include "ofxAVSpeechSynthesizer.h"
 
 @implementation speechSynthesizerDelegate
-
+@synthesize isPlaying;
 - (id)init{
     speechSynthesizer = [[AVSpeechSynthesizer alloc] init];
     speechSynthesizer.delegate = self;
+    isPlaying = false;
+    voice = [AVSpeechSynthesisVoice speechVoices];
     return self;
 }
 
@@ -21,13 +20,12 @@
     [super dealloc];
 }
 
-- (void)play:(NSString *)text setRate:(float)rate setPitch:(float)pitch{
+- (void)play:(NSString*)text setRate:(float)rate setPitch:(float)pitch setVoice:(NSString*)voiceID{
+    if(!isPlaying) isPlaying = true;
     AVSpeechUtterance *utterance = [AVSpeechUtterance speechUtteranceWithString:text];
     utterance.rate = rate;
     utterance.pitchMultiplier = pitch;
-    AVSpeechSynthesisVoice* currentVoice = [AVSpeechSynthesisVoice voiceWithLanguage:[AVSpeechSynthesisVoice currentLanguageCode]];
-    utterance.voice =currentVoice;
-    //utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:@"en-US"];
+    utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:voiceID];
     
     [speechSynthesizer speakUtterance:utterance];
 }
@@ -38,6 +36,7 @@
 }
 
 - (void)stop{
+    isPlaying = false;
     [speechSynthesizer stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
 }
 
@@ -67,22 +66,37 @@
     ofSendMessage(_value);
 }
 
-@end
+- (bool)getIsPlaying{ return isPlaying; }
 
+@end
 
 ofxAVSpeechSynthesizer::ofxAVSpeechSynthesizer()
 {
     tts = [[speechSynthesizerDelegate alloc] init];
 }
 
-void ofxAVSpeechSynthesizer::play(wstring text, float rate, float pitch){
+void ofxAVSpeechSynthesizer::play(wstring text, float rate, float pitch, int num){
     NSString * speakingText = [[NSString alloc] initWithBytes:text.data()
                                                 length:text.size() * sizeof(wchar_t)
                                               encoding:NSUTF32LittleEndianStringEncoding];
     //NSLog(@"set text: %@", speakingText);
-    [tts play:speakingText setRate:rate setPitch:pitch];
+    NSString * voice;
+    switch (num) {
+        case 0:
+            voice = @"ja-JP";
+            break;
+        case 1:
+            voice = @"en-US";
+            break;
+        case 2:
+            voice = @"zh-CN";
+            break;
+    }
+    [tts play:speakingText setRate:rate setPitch:pitch setVoice:voice];
 }
 
 void ofxAVSpeechSynthesizer::pause(){ [tts pause]; }
 
 void ofxAVSpeechSynthesizer::stop(){ [tts stop]; }
+
+bool ofxAVSpeechSynthesizer::getIsPlaying() { return tts.getIsPlaying; }
